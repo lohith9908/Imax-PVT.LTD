@@ -1,0 +1,18 @@
+{
+  "name": "imax-marketplace",
+  "version": "1.0.0",
+  "description": "IMAX Fertilizer Marketplace",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "verify": "node verify-setup.js",
+    "seed": "npm run seed --prefix backend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "lint:fix": "npm run lint:fix --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
