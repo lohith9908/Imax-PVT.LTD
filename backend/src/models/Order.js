@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Order Schema - outcome of successful negotiation
+// Order Schema - outcome of successful negotiation or direct purchase
 const orderSchema = new mongoose.Schema(
   {
     negotiationId: {
@@ -24,12 +24,12 @@ const orderSchema = new mongoose.Schema(
     },
     orderState: {
       type: String,
-      enum: ['CREATED', 'PENDING', 'APPROVED', 'DISPATCHED', 'DELIVERED', 'REJECTED'],
+      enum: ['CREATED', 'PENDING', 'APPROVED', 'DISPATCHED', 'DELIVERED', 'REJECTED', 'CANCELLED'],
       default: 'CREATED',
     },
     paymentState: {
       type: String,
-      enum: ['PENDING', 'PAID', 'FAILED'],
+      enum: ['PENDING', 'PAID', 'FAILED', 'REFUSED'],
       default: 'PENDING',
     },
     quantity: {
@@ -63,10 +63,39 @@ const orderSchema = new mongoose.Schema(
     cancelledAt: Date,
     cancelReason: String,
     deliveredAt: Date,
+    // Phase 4: Conflict tracking & reconciliation
+    hasConflict: {
+      type: Boolean,
+      default: false,
+    },
+    conflictReason: String,
+    conflictResolution: {
+      type: String,
+      enum: ['STOCK_SHORTAGE', 'OWNER_REJECTION', 'PAYMENT_FAILED', 'DELIVERY_FAILED', 'RESOLVED'],
+    },
+    reconciliationStatus: {
+      type: String,
+      enum: ['PENDING', 'IN_PROGRESS', 'RESOLVED', 'REFUNDED'],
+    },
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+    // Idempotency key for duplicate prevention
     idempotencyKey: {
       type: String,
       unique: true,
+      sparse: true,
     },
+    // Strict state transition tracking
+    stateHistory: [
+      {
+        state: String,
+        transitionedAt: Date,
+        transitionedBy: mongoose.Schema.Types.ObjectId,
+        reason: String,
+      },
+    ],
   },
   { timestamps: true },
 );
